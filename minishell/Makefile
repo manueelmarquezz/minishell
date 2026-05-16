@@ -14,7 +14,6 @@ SRCS		= main.c \
 		  builtins/cd.c \
 		  builtins/builtins_utils.c \
 		  builtins/unset.c \
-		  loop/logo.c \
 		  executor/executor.c \
 		  executor/single.c \
 		  executor/pipe.c \
@@ -23,6 +22,7 @@ SRCS		= main.c \
 		  executor/path_utils.c \
 		  executor/redir.c \
 		  executor/heredoc.c \
+		  executor/heredoc_utils.c \
 		  executor/builtin.c \
 		  executor/utils.c \
 		  executor/free.c \

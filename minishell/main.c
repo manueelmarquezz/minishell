@@ -20,12 +20,20 @@ static void	process_line(char *line, t_shell *shell)
 	t_cmd	*cmd;
 
 	if (!line || !*line)
+	{
+		if (g_signal == SIGINT)
+			shell->exit_code = 130;
 		return ;
+	}
 	add_history(line);
 	g_signal = 0;
 	cmd = parse(line, shell);
 	if (!cmd)
+	{
+		if (g_signal == SIGINT)
+			shell->exit_code = 130;
 		return ;
+	}
 	shell->exit_code = execute(cmd, shell);
 	free_cmd_list(cmd);
 }
@@ -39,16 +47,16 @@ static void	minishell_loop(t_shell *shell)
 	{
 		g_signal = 0;
 		line = readline("minishell$ ");
-		if (!line)
-		{
-			write(1, "exit\n", 5);
-			break ;
-		}
 		if (g_signal == SIGINT)
 		{
 			free(line);
 			shell->exit_code = 130;
 			continue ;
+		}
+		if (!line)
+		{
+			write(1, "exit\n", 5);
+			break ;
 		}
 		process_line(line, shell);
 		free(line);

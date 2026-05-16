@@ -13,47 +13,7 @@
 #include "executor.h"
 #include "../parser/parser.h"
 
-static int	delim_was_quoted(char *delim)
-{
-	int	i;
-
-	i = 0;
-	while (delim[i])
-	{
-		if (delim[i] == '\x01' || delim[i] == '\x02')
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-static void	write_line(int fd, char *line, int expand, t_shell *shell)
-{
-	char	*expanded;
-
-	if (expand)
-	{
-		expanded = expand_str(line, shell);
-		if (expanded)
-		{
-			write(fd, expanded, ft_strlen(expanded));
-			free(expanded);
-		}
-	}
-	else
-		write(fd, line, ft_strlen(line));
-	write(fd, "\n", 1);
-}
-
-static void	warn_eof(char *delim)
-{
-	write(2, "\nminishell: warning: heredoc delimited", 38);
-	write(2, " by EOF (wanted `", 17);
-	write(2, delim, ft_strlen(delim));
-	write(2, "')\n", 3);
-}
-
-static int	read_heredoc(int fd, char *delim, int expand, t_shell *shell)
+static void	read_lines(int fd, char *clean, int expand, t_shell *shell)
 {
 	char	*line;
 
@@ -62,31 +22,75 @@ static int	read_heredoc(int fd, char *delim, int expand, t_shell *shell)
 		line = readline("> ");
 		if (!line)
 		{
-			if (g_signal != SIGINT)
-				warn_eof(delim);
-			return (g_signal == SIGINT);
+			write(2, "\nminishell: warning: heredoc delimited", 38);
+			write(2, " by EOF (wanted `", 17);
+			write(2, clean, ft_strlen(clean));
+			write(2, "')\n", 3);
+			break ;
 		}
-		if (ft_strcmp(line, delim) == 0)
-			return (free(line), 0);
+		if (ft_strcmp(line, clean) == 0)
+		{
+			free(line);
+			break ;
+		}
 		write_line(fd, line, expand, shell);
 		free(line);
 	}
 }
 
+static void	heredoc_child(int fd, char *delim, int expand, t_shell *shell)
+{
+	char	*clean;
+
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_IGN);
+	clean = clean_delim(delim);
+	if (!clean)
+		exit(1);
+	read_lines(fd, clean, expand, shell);
+	free(clean);
+	close(fd);
+	exit(0);
+}
+
+static int	wait_heredoc(int pipe_fd[2], pid_t pid)
+{
+	int	status;
+
+	close(pipe_fd[1]);
+	signal(SIGINT, SIG_IGN);
+	waitpid(pid, &status, 0);
+	setup_signals_interactive();
+	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	{
+		close(pipe_fd[0]);
+		g_signal = SIGINT;
+		write(1, "\n", 1);
+		return (-1);
+	}
+	return (pipe_fd[0]);
+}
+
 int	handle_heredoc(char *delim, t_shell *shell)
 {
-	int	pipe_fd[2];
-	int	expand;
-	int	interrupted;
+	int		pipe_fd[2];
+	int		expand;
+	pid_t	pid;
 
 	if (pipe(pipe_fd) == -1)
 		return (perror("minishell: heredoc pipe"), -1);
 	expand = !delim_was_quoted(delim);
-	setup_signals_heredoc();
-	interrupted = read_heredoc(pipe_fd[1], delim, expand, shell);
-	close(pipe_fd[1]);
-	setup_signals_interactive();
-	if (interrupted || g_signal == SIGINT)
-		return (close(pipe_fd[0]), -1);
-	return (pipe_fd[0]);
+	pid = fork();
+	if (pid == -1)
+	{
+		close(pipe_fd[0]);
+		close(pipe_fd[1]);
+		return (perror("minishell: heredoc fork"), -1);
+	}
+	if (pid == 0)
+	{
+		close(pipe_fd[0]);
+		heredoc_child(pipe_fd[1], delim, expand, shell);
+	}
+	return (wait_heredoc(pipe_fd, pid));
 }

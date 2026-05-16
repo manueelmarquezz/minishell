@@ -30,7 +30,11 @@ static t_redir	*build_redir(t_token_type op, char *raw, t_shell *shell)
 
 	fd = -1;
 	if (op == TOKEN_REDIR_HEREDOC)
+	{
 		fd = handle_heredoc(raw, shell);
+		if (fd == -1)
+			return (NULL);
+	}
 	clean = expand_str(raw, shell);
 	if (!clean)
 		return (NULL);
