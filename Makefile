@@ -1,49 +1,49 @@
-NAME		= minishell
-CC		= gcc
-CFLAGS		= -Wall -Wextra -Werror -g
+NAME            = minishell
+CC              = gcc
+CFLAGS          = -Wall -Wextra -Werror -g
 
-SRCS		= main.c \
-		  args_and_env/environment.c \
-		  args_and_env/environment_utils.c \
-		  builtins/env.c \
-		  builtins/export.c \
-		  builtins/export_utils.c \
-		  builtins/echo.c \
-		  builtins/pwd.c \
-		  builtins/exit.c \
-		  builtins/cd.c \
-		  builtins/builtins_utils.c \
-		  builtins/unset.c \
-		  executor/executor.c \
-		  executor/single.c \
-		  executor/pipe.c \
-		  executor/pipe_utils.c \
-		  executor/path.c \
-		  executor/path_utils.c \
-		  executor/redir.c \
-		  executor/heredoc.c \
-		  executor/heredoc_utils.c \
-		  executor/builtin.c \
-		  executor/utils.c \
-		  executor/free.c \
-		  executor/signals.c \
-		  parser/expander.c \
-		  parser/expander_utils.c \
-		  parser/lexer.c \
-		  parser/lexer_utils.c \
-		  parser/lexer_word.c \
-		  parser/parser.c \
-		  parser/parser_args.c \
-		  parser/parser_cmd.c \
-		  parser/parser_utils.c
+SRCS            = main.c \
+                  src/args_and_env/environment.c \
+                  src/args_and_env/environment_utils.c \
+                  src/builtins/env.c \
+                  src/builtins/export.c \
+                  src/builtins/export_utils.c \
+                  src/builtins/echo.c \
+                  src/builtins/pwd.c \
+                  src/builtins/exit.c \
+                  src/builtins/cd.c \
+                  src/builtins/builtins_utils.c \
+                  src/builtins/unset.c \
+                  src/executor/executor.c \
+                  src/executor/single.c \
+                  src/executor/pipe.c \
+                  src/executor/pipe_utils.c \
+                  src/executor/path.c \
+                  src/executor/path_utils.c \
+                  src/executor/redir.c \
+                  src/executor/heredoc.c \
+                  src/executor/heredoc_utils.c \
+                  src/executor/builtin.c \
+                  src/executor/utils.c \
+                  src/executor/free.c \
+                  src/executor/signals.c \
+                  src/parser/expander.c \
+                  src/parser/expander_utils.c \
+                  src/parser/lexer.c \
+                  src/parser/lexer_utils.c \
+                  src/parser/lexer_word.c \
+                  src/parser/parser.c \
+                  src/parser/parser_args.c \
+                  src/parser/parser_cmd.c \
+                  src/parser/parser_utils.c
 
-OBJS		= $(SRCS:.c=.o)
+OBJS            = $(SRCS:.c=.o)
 
-LIBFT_DIR	= libft
-LIBFT		= $(LIBFT_DIR)/libft.a
+LIBFT_DIR       = libft
+LIBFT           = $(LIBFT_DIR)/libft.a
 
-INCLUDES	= -I. -I$(LIBFT_DIR) -Iargs_and_env -Ibuiltins \
-		  -Iloop -Iexecutor -Iparser
+INCLUDES        = -I. -I$(LIBFT_DIR) -Isrc/args_and_env -Isrc/builtins \
+                  -Isrc/executor -Isrc/parser
 
 all: $(LIBFT) $(NAME)
 

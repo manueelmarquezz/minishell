@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "executor/executor.h"
-#include "parser/parser.h"
+#include "src/executor/executor.h"
+#include "src/parser/parser.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 
