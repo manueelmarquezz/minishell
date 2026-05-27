@@ -19,8 +19,8 @@ static void	handle_sigint_interactive(int sig)
 	(void)sig;
 	g_signal = SIGINT;
 	write(1, "\n", 1);
-	rl_on_new_line();
 	rl_replace_line("", 0);
+	rl_on_new_line();
 	rl_redisplay();
 	rl_done = 1;
 }
@@ -42,7 +42,7 @@ void	setup_signals_interactive(void)
 	ft_memset(&sa_int, 0, sizeof(sa_int));
 	sa_int.sa_handler = handle_sigint_interactive;
 	sigemptyset(&sa_int.sa_mask);
-	sa_int.sa_flags = SA_RESTART;
+	sa_int.sa_flags = 0;
 	sigaction(SIGINT, &sa_int, NULL);
 	ft_memset(&sa_quit, 0, sizeof(sa_quit));
 	sa_quit.sa_handler = SIG_IGN;

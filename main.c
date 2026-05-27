@@ -49,8 +49,9 @@ static void	minishell_loop(t_shell *shell)
 		line = readline("minishell$ ");
 		if (g_signal == SIGINT)
 		{
-			free(line);
 			shell->exit_code = 130;
+			g_signal = 0;
+			free(line);
 			continue ;
 		}
 		if (!line)
